@@ -1,26 +1,29 @@
-name: Deploy to EC2 via SSH
+name: Deploy WordPress to EC2
 
 on:
   push:
     branches:
-      - master  # Trigger deployment on push to main branch
+      - main  # Trigger on pushes to the main branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
-    - name: Checkout code
+    - name: Checkout repository
       uses: actions/checkout@v2
 
-    - name: Set up SSH key
+    - name: Set up SSH
       run: |
         mkdir -p ~/.ssh
         echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
         chmod 600 ~/.ssh/id_rsa
-        # Disable host key checking for SSH to avoid issues with new servers
-        echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config
-
-    - name: Rsync to EC2 and deploy
+        ssh-keyscan -t rsa 52.66.168.73 >> ~/.ssh/known_hosts  # Add your EC2 IP here
+        
+    - name: Deploy to EC2
       run: |
-        sudo rsync -avv --progress ./ ubuntu@52.66.168.73:/var/www/html/
+        ssh -o StrictHostKeyChecking=no ubuntu@52.66.168.73 << 'EOF'
+          cd /var/www/html
+          git pull origin main  # Pull the latest code from the main branch
+        EOF
+
