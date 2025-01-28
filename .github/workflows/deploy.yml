@@ -24,6 +24,6 @@ jobs:
       run: |
         ssh -o StrictHostKeyChecking=no ubuntu@52.66.168.73 << 'EOF'
           cd /var/www/html
-          git pull origin main  # Pull the latest code from the main branch
+          git pull origin master  # Pull the latest code from the main branch
         EOF
 
