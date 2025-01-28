@@ -23,4 +23,4 @@ jobs:
 
     - name: Rsync to EC2 and deploy
       run: |
-        rsync -avz --delete ./ ubuntu@172.31.5.239:/var/www/html/
+        rsync -avz --delete ./ ubuntu@52.66.168.73:/var/www/html/
