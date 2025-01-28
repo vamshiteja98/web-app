@@ -1,0 +1,26 @@
+name: Deploy to EC2 via SSH
+
+on:
+  push:
+    branches:
+      - master  # Trigger deployment on push to main branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up SSH key
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        # Disable host key checking for SSH to avoid issues with new servers
+        echo -e "Host *\n\tStrictHostKeyChecking no\n\n" >> ~/.ssh/config
+
+    - name: Rsync to EC2 and deploy
+      run: |
+        rsync -avz --delete ./ ubuntu@172.31.5.239:/var/www/html/
