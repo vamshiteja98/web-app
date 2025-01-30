@@ -1,0 +1,29 @@
+name: Deploy WordPress to EC2
+
+on:
+  push:
+    branches:
+      - master  # Trigger on pushes to the master branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up SSH
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
+        chmod 600 ~/.ssh/id_rsa
+        ssh-keyscan -t rsa 52.66.168.73 >> ~/.ssh/known_hosts  # Add your EC2 IP here
+        
+    - name: Deploy to EC2
+      run: |
+        ssh -o StrictHostKeyChecking=no ubuntu@52.66.168.73 << 'EOF'
+          cd /var/www/html
+          git pull origin master  # Pull the latest code from the main branch
+        EOF
+
